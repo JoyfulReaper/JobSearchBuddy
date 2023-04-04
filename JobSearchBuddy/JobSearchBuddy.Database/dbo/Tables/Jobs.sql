@@ -1,0 +1,25 @@
+﻿CREATE TABLE [dbo].[Jobs]
+(
+	[JobId] INT NOT NULL PRIMARY KEY IDENTITY, 
+    [Title] NVARCHAR(50) NOT NULL, 
+    [Description] NVARCHAR(MAX) NOT NULL, 
+    [Url] NVARCHAR(150) NULL,
+    [CompanyName] NVARCHAR(50) NOT NULL, 
+    [ContactId] INT NULL, 
+    [SalaryRange] NVARCHAR(50) NULL, 
+    [IsRemote] BIT NOT NULL DEFAULT 0, 
+    [Address1] NVARCHAR(100) NULL, 
+    [City] NVARCHAR(50) NULL, 
+    [State] VARCHAR(2) NULL DEFAULT 'PA', 
+    [Zip] NCHAR(10) NULL, 
+    [IsInterested] BIT NOT NULL DEFAULT 0, 
+    [IsApplied] BIT NOT NULL DEFAULT 0, 
+    [StatusId] INT NOT NULL DEFAULT 1,
+    [DateApplied] DATETIME2 NULL, 
+    [DatePosted] DATETIME2 NULL, 
+    [DateCreated] DATETIME2 NOT NULL DEFAULT SYSDATETIME(), 
+    [DateUpdated] DATETIME2 NULL, 
+    CONSTRAINT [FK_Jobs_Contacts] FOREIGN KEY ([ContactId]) REFERENCES [Contacts]([ContactId]), 
+    CONSTRAINT [FK_Jobs_Statuses] FOREIGN KEY ([StatusId]) REFERENCES [Statuses]([StatusId]),
+    CONSTRAINT [CK_Jobs_IsApplied_DateApplied] CHECK ((IsApplied = 0 AND DateApplied IS NULL) OR (IsApplied = 1 AND DateApplied IS NOT NULL))
+)
