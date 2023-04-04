@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [dbo].[Notes]
 (
 	[NoteId] INT NOT NULL PRIMARY KEY IDENTITY, 
-    [NoteText] NVARCHAR(MAX) NULL, 
+    [NoteText] NVARCHAR(MAX) NOT NULL, 
     [RelationshipType] VARCHAR(10) NULL, 
     [DateCreated] DATETIME2 NOT NULL DEFAULT SYSDATETIME(), 
     [DateUpdated] DATETIME2 NULL

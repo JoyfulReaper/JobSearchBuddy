@@ -1,4 +1,4 @@
-﻿namespace JobSearchBuddy.Server.Models;
+﻿namespace JobSearchBuddy.Server.Contacts;
 
 public class Contact
 {
