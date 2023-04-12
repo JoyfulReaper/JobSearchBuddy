@@ -5,16 +5,16 @@ using System.Data;
 
 namespace JobSearchBuddy.Server.Data;
 
-public class SqlDataAccess : IDataAccess
+public class DapperDataAccess : IDataAccess
 {
     private IDbConnection? _connection;
     private IDbTransaction? _transaction;
     private bool isClosed = false;
     private readonly IConfiguration _config;
-    private readonly ILogger<SqlDataAccess> _logger;
+    private readonly ILogger<DapperDataAccess> _logger;
 
-    public SqlDataAccess(IConfiguration config,
-        ILogger<SqlDataAccess> logger)
+    public DapperDataAccess(IConfiguration config,
+        ILogger<DapperDataAccess> logger)
     {
         _config = config;
         _logger = logger;
@@ -22,7 +22,8 @@ public class SqlDataAccess : IDataAccess
 
     public string GetConnectionString(string name)
     {
-        return _config.GetConnectionString(name);
+        return _config.GetConnectionString(name) ??
+            throw new Exception($"GetConnectionString({name}) failed");
     }
 
     public async Task<List<T>> LoadDataAsync<T, U>(string storedProcedure, U parameters, string connectionStringName)
