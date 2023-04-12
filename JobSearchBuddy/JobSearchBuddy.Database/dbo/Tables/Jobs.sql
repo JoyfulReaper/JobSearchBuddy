@@ -19,6 +19,7 @@
     [DatePosted] DATETIME2 NULL, 
     [DateCreated] DATETIME2 NOT NULL DEFAULT SYSDATETIME(), 
     [DateUpdated] DATETIME2 NULL, 
+    [DateDeleted] DATETIME2 NULL, 
     CONSTRAINT [FK_Jobs_Contacts] FOREIGN KEY ([ContactId]) REFERENCES [Contacts]([ContactId]), 
     CONSTRAINT [FK_Jobs_Statuses] FOREIGN KEY ([StatusId]) REFERENCES [Statuses]([StatusId]),
     CONSTRAINT [CK_Jobs_IsApplied_DateApplied] CHECK ((IsApplied = 0 AND DateApplied IS NULL) OR (IsApplied = 1 AND DateApplied IS NOT NULL))
