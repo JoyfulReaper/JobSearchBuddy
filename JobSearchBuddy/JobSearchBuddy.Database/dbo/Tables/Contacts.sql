@@ -9,5 +9,6 @@
     [JobTitle] NVARCHAR(50) NULL, 
     [IsExternalRecruiter] BIT NOT NULL DEFAULT 1,
     [DateAdded] DATETIME2 NOT NULL DEFAULT SYSDATETIME(), 
-    [DateUpdated] DATETIME2 NULL
+    [DateUpdated] DATETIME2 NULL, 
+    [DateDeleted] DATETIME2 NULL
 )
