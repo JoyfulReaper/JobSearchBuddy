@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 {
     builder.Services.AddControllersWithViews();
     builder.Services.AddRazorPages();
+    builder.Services.AddAutoMapper(typeof(Program));
     builder.Services.AddJobSearchBuddy(builder.Configuration);
 }
 
