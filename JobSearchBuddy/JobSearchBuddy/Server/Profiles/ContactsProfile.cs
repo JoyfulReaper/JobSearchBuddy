@@ -8,7 +8,8 @@ public class ContactsProfile : Profile
 {
     public ContactsProfile()
     {
-        CreateMap<Contact, ContactReadDTO>();
+        CreateMap<Contact, ContactReadDto>()
+            .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes));
         CreateMap<ContactCreateDto, Contact>();
     }
 }

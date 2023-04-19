@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JobSearchBuddy.Shared.Contacts;
 
-public class ContactReadDTO
+public class ContactReadDto
 {
     [Key]
     public int ContactId { get; set; }

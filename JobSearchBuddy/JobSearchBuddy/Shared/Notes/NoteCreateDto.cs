@@ -7,7 +7,4 @@ public class NoteCreateDto
     [Required]
     [Display(Name = "Note Text")]
     public string NoteText { get; set; } = default!;
-
-    [Display(Name = "Relationship Type")]
-    public string? RelationshipType { get; set; }
 }

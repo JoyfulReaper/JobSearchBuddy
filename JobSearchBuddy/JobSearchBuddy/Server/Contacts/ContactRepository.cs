@@ -30,6 +30,8 @@ namespace JobSearchBuddy.Server.Contacts
 
         public async Task<int> DeleteAsync(int contactId)
         {
+            // TODO: We should also delete any notes associated with this contact
+
             const string sql = @"UPDATE Contacts SET DateDeleted = SYSDATETIME() WHERE ContactId = @ContactId;";
 
             using var connection = _connectionFactory.CreateConnection();
@@ -51,7 +53,9 @@ namespace JobSearchBuddy.Server.Contacts
                                  c.DateAdded, c.DateUpdated FROM Contacts c LEFT JOIN
                                  ContactsNotes cn ON c.ContactId = cn.ContactId LEFT JOIN
                                  Notes n ON cn.NoteId = n.NoteId
-                                 WHERE c.ContactId = @ContactId AND c.DateDeleted IS NULL;";
+                                 WHERE c.ContactId = @ContactId AND c.DateDeleted IS NULL;
+                                 SELECT * FROM Notes n INNER JOIN 
+                                 ContactsNotes cn ON n.NoteId = cn.NoteId WHERE cn.ContactId = @ContactId;";
 
 
             using var connection = _connectionFactory.CreateConnection();
@@ -80,6 +84,7 @@ namespace JobSearchBuddy.Server.Contacts
         public async Task<int> AddNoteAsync(int contactId, Note note)
         {
             using IDbConnection connection = _connectionFactory.CreateConnection();
+            connection.Open();
             var transaction = connection.BeginTransaction();
 
             try
