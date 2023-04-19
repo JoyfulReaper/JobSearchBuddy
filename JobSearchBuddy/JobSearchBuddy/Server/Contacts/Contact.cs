@@ -1,4 +1,6 @@
-﻿namespace JobSearchBuddy.Server.Contacts;
+﻿using JobSearchBuddy.Server.Notes;
+
+namespace JobSearchBuddy.Server.Contacts;
 
 public class Contact
 {
@@ -12,4 +14,8 @@ public class Contact
     public bool IsExternalRecruiter { get; set; }
     public DateTime DateAdded { get; set; }
     public DateTime? DateUpdated { get; set; }
+
+    ////////////////////////////////////////////////////
+
+    public List<Note> Notes { get; set; } = new();
 }

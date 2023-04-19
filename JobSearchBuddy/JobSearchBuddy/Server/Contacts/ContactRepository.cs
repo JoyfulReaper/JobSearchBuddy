@@ -19,7 +19,7 @@ namespace JobSearchBuddy.Server.Contacts
         {
             const string sql = @"INSERT INTO Contacts (FirstName, LastName, PhoneNumber, EmailAddress, CompanyName, JobTitle, IsExternalRecruiter)
                                 VALUES (@FirstName, @LastName, @PhoneNumber, @EmailAddress, @CompanyName, @JobTitle, @IsExternalRecruiter);
-                                SELECT CAST(SCOPE_IDENTITY() as int)";
+                                SELECT CAST(SCOPE_IDENTITY() as int);";
 
             using var connection = _connectionFactory.CreateConnection();
             var id = await connection.QuerySingleOrDefaultAsync<int>(sql, contact);
@@ -30,7 +30,7 @@ namespace JobSearchBuddy.Server.Contacts
 
         public async Task<int> DeleteAsync(int contactId)
         {
-            const string sql = @"UPDATE Contacts SET DateDeleted = SYSDATETIME() WHERE ContactId = @ContactId";
+            const string sql = @"UPDATE Contacts SET DateDeleted = SYSDATETIME() WHERE ContactId = @ContactId;";
 
             using var connection = _connectionFactory.CreateConnection();
             return await connection.ExecuteAsync(sql, new { ContactId = contactId });
@@ -38,7 +38,7 @@ namespace JobSearchBuddy.Server.Contacts
 
         public async Task<IEnumerable<Contact>> GetAllAsync()
         {
-            const string sql = @"SELECT * FROM Contacts";
+            const string sql = @"SELECT * FROM Contacts WHERE DateDeleted IS NULL;";
 
             using var connection = _connectionFactory.CreateConnection();
             return await connection.QueryAsync<Contact>(sql);
@@ -46,10 +46,24 @@ namespace JobSearchBuddy.Server.Contacts
 
         public async Task<Contact?> GetByIdAsync(int contactId)
         {
-            const string sql = @"SELECT * FROM Contacts WHERE ContactId = @ContactId";
+            const string sql = @"SELECT c.ContactId, c.FirstName, c.LastName, c.PhoneNumber, 
+                                 c.EmailAddress, c.CompanyName, c.JobTitle, c.IsExternalRecruiter,
+                                 c.DateAdded, c.DateUpdated FROM Contacts c LEFT JOIN
+                                 ContactsNotes cn ON c.ContactId = cn.ContactId LEFT JOIN
+                                 Notes n ON cn.NoteId = n.NoteId
+                                 WHERE c.ContactId = @ContactId AND c.DateDeleted IS NULL;";
+
 
             using var connection = _connectionFactory.CreateConnection();
-            return await connection.QuerySingleOrDefaultAsync<Contact>(sql, new { ContactId = contactId });
+            using var reader = await connection.QueryMultipleAsync(sql, new { ContactId = contactId });
+            var contact = await reader.ReadSingleOrDefaultAsync<Contact>();
+
+            if(!reader.IsConsumed)
+            {
+                contact.Notes = (await reader.ReadAsync<Note>()).ToList();
+            }
+
+            return contact;
         }
 
         public async Task UpdateAsync(Contact contact)
@@ -57,7 +71,7 @@ namespace JobSearchBuddy.Server.Contacts
             const string sql = @"UPDATE Contacts SET FirstName = @FirstName, LastName = @LastName, 
                                 PhoneNumber = @PhoneNumber, EmailAddress = @EmailAddress, 
                                 CompanyName = @CompanyName, JobTitle = @JobTitle, IsExternalRecruiter = @IsExternalRecruiter, 
-                                DateUpdated = SYSDATETIME() WHERE ContactId = @ContactId";
+                                DateUpdated = SYSDATETIME() WHERE ContactId = @ContactId AND DateDeleted IS NULL";
 
             using var connection = _connectionFactory.CreateConnection();
             await connection.ExecuteAsync(sql, contact);
@@ -100,9 +114,10 @@ namespace JobSearchBuddy.Server.Contacts
 
             var notes = await connection.QueryAsync<Note>(@"
                 SELECT n.*
-                FROM [dbo].[Notes] n
-                INNER JOIN [dbo].[ContactsNotes] cn ON cn.NoteId = n.NoteId
-                WHERE cn.ContactId = @ContactId
+                FROM [dbo].[Notes] n INNER JOIN 
+                [dbo].[ContactsNotes] cn ON cn.NoteId = n.NoteId INNER JOIN
+                [dbo].[Contacts] c ON c.ContactId = cn.ContactId
+                WHERE cn.ContactId = @ContactId AND c.DateDeleted IS NULL
             ", new { ContactId = contactId });
 
             return notes;

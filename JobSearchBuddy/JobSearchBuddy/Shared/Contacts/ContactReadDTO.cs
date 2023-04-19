@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using JobSearchBuddy.Shared.Notes;
+using System.ComponentModel.DataAnnotations;
 
 namespace JobSearchBuddy.Shared.Contacts;
 
@@ -44,4 +45,6 @@ public class ContactReadDTO
     [Display(Name = "Date Updated")]
     [DataType(DataType.DateTime)]
     public DateTime? DateUpdated { get; set; }
+
+    public List<NoteReadDto> Notes { get; set; } = new();
 }
