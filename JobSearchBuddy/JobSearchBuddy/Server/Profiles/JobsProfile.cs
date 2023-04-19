@@ -8,7 +8,8 @@ public class JobsProfile : Profile
 {
     public JobsProfile()
     {
-        CreateMap<Job, JobReadDto>();
+        CreateMap<Job, JobReadDto>()
+            .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes));
         CreateMap<JobCreateDto, Job>();
     }
 }

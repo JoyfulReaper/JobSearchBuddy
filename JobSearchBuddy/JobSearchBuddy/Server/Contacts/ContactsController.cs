@@ -38,7 +38,7 @@ public class ContactsController : ControllerBase
         {
             return NotFound();
         }
-        var test = _mapper.Map<ContactReadDto>(contact);
+
         return Ok(_mapper.Map<ContactReadDto>(contact));
     }
 

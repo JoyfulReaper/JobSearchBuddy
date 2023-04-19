@@ -1,4 +1,6 @@
-﻿namespace JobSearchBuddy.Server.Jobs
+﻿using JobSearchBuddy.Server.Notes;
+
+namespace JobSearchBuddy.Server.Jobs
 {
     public class Job
     {
@@ -21,5 +23,9 @@
         public DateTime? DatePosted { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? DateUpdated { get; set; }
+
+        /////////////////////////////////////////////
+
+        public List<Note> Notes { get; set; } = new();
     }
 }

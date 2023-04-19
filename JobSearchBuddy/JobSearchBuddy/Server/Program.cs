@@ -1,3 +1,5 @@
+// TODO: We need to make sure our exceptions aren't being returned to the client
+
 using JobSearchBuddy.Server;
 using Microsoft.AspNetCore.ResponseCompression;
 

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using JobSearchBuddy.Server.Contacts;
 using JobSearchBuddy.Server.Data.Interfaces;
 using JobSearchBuddy.Server.Jobs.Interfaces;
 using JobSearchBuddy.Server.Notes;
@@ -27,15 +28,30 @@ public class JobRepository : IJobRepository
     public async Task<Job?> GetByIdAsync(int jobId)
     {
         using IDbConnection connection = _dbConnectionFactory.CreateConnection();
-        const string sql = "SELECT * FROM Jobs WHERE JobId = @JobId AND DateDeleted IS NULL";
-        return await connection.QuerySingleOrDefaultAsync<Job>(sql, new { JobId = jobId });
+        //const string sql = "SELECT * FROM Jobs WHERE JobId = @JobId AND DateDeleted IS NULL";
+        const string sql = @"SELECT * FROM Jobs j LEFT JOIN
+                                JobsNotes jn ON j.JobId = jn.JobId LEFT JOIN
+                                Notes n ON jn.NoteId = n.NoteId
+                                WHERE j.JobId = @JobId AND j.DateDeleted IS NULL;
+                                SELECT * FROM Notes n INNER JOIN 
+                                JobsNotes jn ON n.NoteId = jn.NoteId WHERE jn.JobId = @JobId;";
+
+        using var reader = await connection.QueryMultipleAsync(sql, new { JobId = jobId });
+        var job = await reader.ReadSingleOrDefaultAsync<Job>();
+
+        if (!reader.IsConsumed && job is not null)
+        {
+            job.Notes = (await reader.ReadAsync<Note>()).ToList();
+        }
+
+        return job;
     }
 
     public async Task<int> CreateAsync(Job job)
     {
         using IDbConnection connection = _dbConnectionFactory.CreateConnection();
         const string sql = @"INSERT INTO Jobs(Title, Description, Url, CompanyName, ContactId, SalaryRange, IsRemote, Address1, City, State, Zip, IsInterested, IsApplied, StatusId, DateApplied, DatePosted, DateCreated)
-                                 VALUES(@Title, @Description, @Url, @CompanyName, @ContactId, @SalaryRange, @IsRemote, @Address1, @City, @State, @Zip, @IsInterested, @IsApplied, @StatusId, @DateApplied, @DatePosted, @DateCreated);
+                                 VALUES(@Title, @Description, @Url, @CompanyName, @ContactId, @SalaryRange, @IsRemote, @Address1, @City, @State, @Zip, @IsInterested, @IsApplied, @StatusId, @DateApplied, @DatePosted, SYSDATETIME());
                                  SELECT CAST(SCOPE_IDENTITY() as int)";
 
         var id = await connection.QuerySingleAsync<int>(sql, job);
@@ -76,6 +92,7 @@ public class JobRepository : IJobRepository
     public async Task<int> DeleteNoteAsync(int jobId, int noteId)
     {
         using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+        connection.Open();
         var transaction = connection.BeginTransaction();
 
         try
@@ -114,6 +131,7 @@ public class JobRepository : IJobRepository
     public async Task<int> AddNoteAsync(int jobId, Note note)
     {
         using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+        connection.Open();
         var transaction = connection.BeginTransaction();
 
         try

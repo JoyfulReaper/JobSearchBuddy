@@ -131,6 +131,7 @@ namespace JobSearchBuddy.Server.Contacts
         public async Task<int> DeleteNoteAsync(int contactId, int noteId)
         {
             using IDbConnection connection = _connectionFactory.CreateConnection();
+            connection.Open();
             var transaction = connection.BeginTransaction();
 
             try
